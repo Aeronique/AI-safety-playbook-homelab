@@ -22,7 +22,7 @@ The course makes this point early. A lot of time gets wasted building machine le
 
 ## 2. Know Your Data Before You Touch a Model
 
-A model is only as good as what it is trained on. There are four pillars of data quality to keep in mind, which are accuracy, completeness, consistency, and timeliness. Is the data correct? Is anything missing? Does it follow a predictable format? Is it current enough to be useful?
+A model is only as good as what it is trained on. There are four pillars of data quality to keep in mind: accuracy, completeness, consistency, and timeliness. Is the data correct? Is anything missing? Does it follow a predictable format? Is it current enough to be useful?
 
 Beyond quality, you also need to think about bias. If your training data does not represent the people or scenarios your model will encounter in the real world, your outputs will reflect that gap. Check your data sources, document where they came from (this is called data provenance), and flag anything that looks skewed before you start building.
 
@@ -32,7 +32,7 @@ Beyond quality, you also need to think about bias. If your training data does no
 
 The course breaks down three ways to run AI systems, and the same thinking applies to a homelab.
 
-SaaS (Software as a Service) is something like a hosted LLM API. You get the least control but the easiest starting point. PaaS (Platform as a Service) means you control the application and data while the provider handles the platform. IaaS (Infrastructure as a Service) means you run your own virtual machines or containers, which gives you maximum control and maximum responsibility.
+**SaaS (Software as a Service)** is something like a hosted LLM API. You get the least control but the easiest starting point. **PaaS (Platform as a Service)** means you control the application and data while the provider handles the platform. **IaaS (Infrastructure as a Service)** means you run your own virtual machines or containers, which gives you maximum control and maximum responsibility.
 
 Your security approach needs to match whichever model you choose. The more of the stack you own, the more of the security you own.
 
@@ -42,7 +42,14 @@ Your security approach needs to match whichever model you choose. The more of th
 
 Zero Trust is a security model defined by NIST where every user, service, and agent gets the minimum access they need to do their job and nothing more. All communication is secured regardless of where it happens on your network. The guiding principle is never trust, always verify.
 
-For a homelab AI setup this means assigning least-privilege permissions to every component, treating AI agents the same as user accounts and verifying them every time, securing all traffic even between internal services, and logging everything continuously. AI security requires continuous attention throughout the life of your system.
+For a homelab AI setup this means:
+
+- Assigning least-privilege permissions to every component
+- Treating AI agents the same as user accounts and verifying them every time
+- Securing all traffic even between internal services
+- Logging everything continuously
+
+AI security requires continuous attention throughout the life of your system.
 
 ---
 
@@ -50,7 +57,15 @@ For a homelab AI setup this means assigning least-privilege permissions to every
 
 Responsible AI runs through every phase of development and gets built in from the start.
 
-Problem framing is where you define your use case and think about ethical implications upfront. Data collection is where you make sure your data is representative, unbiased, and privacy-compliant. Model development is where you apply fairness techniques and document your decisions. Model testing is where you evaluate against your requirements using data the model has not seen before. Deployment is where you track both technical metrics and how real people experience the system. Monitoring and feedback is where you continuously watch outputs, retrain when needed, and integrate feedback. Fairness review is where you revisit outputs regularly and retire outdated data.
+| Phase | What You Are Doing |
+|---|---|
+| Problem Framing | Define your use case and think about ethical implications upfront |
+| Data Collection | Make sure your data is representative, unbiased, and privacy-compliant |
+| Model Development | Apply fairness techniques and document your decisions |
+| Model Testing | Evaluate against your requirements using data the model has not seen before |
+| Deployment | Track both technical metrics and how real people experience the system |
+| Monitoring & Feedback | Watch outputs continuously, retrain when needed, integrate feedback |
+| Fairness Review | Revisit outputs regularly and retire outdated data |
 
 Even in a homelab, skipping these steps creates problems later that are much harder to fix.
 
@@ -58,9 +73,17 @@ Even in a homelab, skipping these steps creates problems later that are much har
 
 ## 6. Know the Threats Specific to AI Systems
 
-Traditional cybersecurity threats still apply to AI, but AI introduces a few unique ones. The course covers the OWASP threat taxonomy for generative and agentic AI, and the ones most relevant to a local implementation are covered here.
+Traditional cybersecurity threats still apply to AI, but AI introduces some unique ones. The course covers the OWASP threat taxonomy for generative and agentic AI. The ones most relevant to a local implementation are:
 
-Prompt injection is when an attacker embeds hidden instructions in inputs like documents or emails that your model then reads and follows. It is hard to detect because it can be buried in otherwise normal-looking content. Memory poisoning is when corrupted data gets introduced into your model's context, leading to altered behavior. Data poisoning is when your training data gets manipulated before training, causing the model to learn the wrong things. Clean-label attacks are especially tricky because the poisoned samples have correct labels and look completely normal. Model evasion is when inputs are crafted specifically to fool your model while appearing legitimate. Cascading hallucinations happen when the model generates plausible but false information that then propagates through connected systems.
+**Prompt Injection** — An attacker embeds hidden instructions in inputs like documents or emails that your model then reads and follows. Hard to detect because it can be buried in otherwise normal-looking content.
+
+**Memory Poisoning** — Corrupted data gets introduced into your model's context, leading to altered behavior.
+
+**Data Poisoning** — Your training data gets manipulated before training, causing the model to learn the wrong things. Clean-label attacks are especially tricky here because the poisoned samples have correct labels and look completely normal.
+
+**Model Evasion** — Inputs are crafted specifically to fool your model while appearing legitimate.
+
+**Cascading Hallucinations** — The model generates plausible but false information that then propagates through connected systems.
 
 Knowing these exist means you can design your setup to watch for them.
 
@@ -70,15 +93,24 @@ Knowing these exist means you can design your setup to watch for them.
 
 Retrieval-Augmented Generation (RAG) is one of the most practical concepts from the course. Instead of retraining a model on everything you need it to know, RAG lets you connect a standard language model to your own documents or knowledge sources at query time.
 
-Your model stays current because you update the knowledge source and the model itself stays unchanged. Sensitive data stays local. You can specialize the AI on your own notes or documentation without expensive fine-tuning. Hallucinations decrease because responses are grounded in your actual source material.
+**Why it works well for a homelab:**
+- Your model stays current because you update the knowledge source and the model itself stays unchanged
+- Sensitive data stays local
+- You can specialize the AI on your own notes or documentation without expensive fine-tuning
+- Hallucinations decrease because responses are grounded in your actual source material
 
-On the security side, if your retrieval source gets poisoned or manipulated, that bad data flows directly into your model's responses.
+**The tradeoff:** If your retrieval source gets poisoned or manipulated, that bad data flows directly into your model's responses.
 
 ---
 
 ## 8. Build a Simple MLOps Loop
 
-MLOps is the practice of combining machine learning, DevOps, and data engineering to manage models reliably over time. At minimum you want to version your models (keep at least the current version, the previous version, and an emergency fallback), log your inputs and outputs, monitor for drift as the world changes and new data patterns emerge, and automate your feedback loop so the system collects data, validates it, retrains when it hits a threshold, evaluates, and deploys.
+MLOps is the practice of combining machine learning, DevOps, and data engineering to manage models reliably over time. At minimum you want to:
+
+- Version your models (keep at least the current version, the previous version, and an emergency fallback)
+- Log your inputs and outputs
+- Monitor for drift as the world changes and new data patterns emerge
+- Automate your feedback loop so the system collects data, validates it, retrains when it hits a threshold, evaluates, and deploys
 
 Even a lightweight version of this loop will save you significant headaches over time.
 
@@ -86,7 +118,11 @@ Even a lightweight version of this loop will save you significant headaches over
 
 ## 9. Plan for Incidents Before They Happen
 
-Define two things before you go live with anything. RTO (Recovery Time Objective) is how quickly you need to be back up after something breaks. RPO (Recovery Point Objective) is how much data or model state you can afford to lose.
+Define two things before you go live with anything.
+
+**RTO (Recovery Time Objective)** — How quickly you need to be back up after something breaks.
+
+**RPO (Recovery Point Objective)** — How much data or model state you can afford to lose.
 
 Write a simple runbook, which is a step-by-step document of what to do when something goes wrong. Use Infrastructure as Code wherever you can so your setup is reproducible and you are not rebuilding from memory after an incident.
 
